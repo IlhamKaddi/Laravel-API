@@ -42,6 +42,7 @@ public function index(Request $request)
     ]);
 
     $search = $request->query('search');
+    $role = $request->query('role');
 
     $query = User::query();
 
@@ -49,6 +50,10 @@ public function index(Request $request)
         $query->where('name', 'like', '%' . $search . '%')
               ->orWhere('email', 'like', '%' . $search . '%');
     }
+
+    if ($role) {
+    $query->where('role', $role);
+}
 
     $users = $query->paginate($perPage)->withQueryString();
 
