@@ -39,6 +39,8 @@ public function index(Request $request)
     $request->validate([
         'per_page' => 'integer|min:1|max:50',
         'search' => 'nullable|string|max:100',
+        'sort' => 'nullable|in:name,email,created_at',
+        'direction' => 'nullable|in:asc,desc',
     ]);
 
     $search = $request->query('search');
@@ -46,16 +48,28 @@ public function index(Request $request)
 
     $query = User::query();
 
+    // if ($search) {
+    //     $query->where('name', 'like', '%' . $search . '%')
+    //           ->orWhere('email', 'like', '%' . $search . '%');
+    // }
     if ($search) {
-        $query->where('name', 'like', '%' . $search . '%')
-              ->orWhere('email', 'like', '%' . $search . '%');
-    }
+    $query->where(function ($q) use ($search) {
+        $q->where('name', 'like', '%' . $search . '%')
+          ->orWhere('email', 'like', '%' . $search . '%');
+    });
+}
 
     if ($role) {
     $query->where('role', $role);
 }
+$sort = $request->query('sort');
+$direction = $request->query('direction', 'asc');  
 
-    $users = $query->paginate($perPage)->withQueryString();
+if ($sort) {
+    $query->orderBy($sort, $direction);
+}
+
+$users = $query->paginate($perPage)->withQueryString();
 
     return response()->json([
         'users' => $users
