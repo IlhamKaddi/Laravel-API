@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -78,15 +79,29 @@ $users = $query->paginate($perPage)->withQueryString();
 
 
 // get user by id ---------------------------------
-    public function show($id)
-{
-    // $user = User::find($id);   -> this it return user but whene user not found it return (null)
+//     public function show($id)
+// {
+//     // $user = User::find($id);   -> this it return user but whene user not found it return (null)
 
-    // this is return (not found) if user not exist in db
-      $user = User::findOrFail($id);
+//     // this is return (not found) if user not exist in db
+//       $user = User::findOrFail($id);
+
+//     return response()->json([
+//         'user' => $user
+//     ]);
+// }
+public function show($id)
+{
+    $user = User::findOrFail($id);
 
     return response()->json([
-        'user' => $user
+        'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+            'image' => $user->image ? Storage::url($user->image) : null,
+        ]
     ]);
 }
 
@@ -119,6 +134,27 @@ public function destroy($id)
 
     return response()->json([
         'message' => 'User deleted successfully'
+    ]);
+}
+
+//  upload user image
+public function uploadImage(Request $request, $id)
+{
+    $user = User::findOrFail($id);
+
+    $request->validate([
+        'image' => 'required|image|max:2048',
+    ]);
+
+    $path = $request->file('image')->store('users', 'public');
+    $user->update([
+    'image' => $path
+]);
+
+    return response()->json([
+        'message' => 'Image uploaded successfully',
+        'path' => $path,
+        'url' => Storage::url($path)
     ]);
 }
 
