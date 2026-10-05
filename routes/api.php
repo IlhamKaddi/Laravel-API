@@ -71,3 +71,21 @@ Route::get('/users/{id}/profile', function ($id) {
         'user' => $user
     ]);
 });
+
+
+// 
+Route::get('/products/{id}/tags', function ($id) {
+    $product = \App\Models\Product::with('tags')->findOrFail($id);
+
+    // return response()->json([
+    //     'product' => $product
+    // ]);
+    return response()->json([
+    'product' => [
+        'id' => $product->id,
+        'name' => $product->name,
+        'price' => $product->price,
+        'tags' => \App\Http\Resources\TagResource::collection($product->tags),
+    ]
+]);
+});
