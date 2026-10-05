@@ -61,3 +61,13 @@ Route::middleware(['auth:sanctum', 'role:admin'])->delete('/users/{id}', [UserCo
 
 // upload user image 
 Route::post('/users/{id}/image', [UserController::class, 'uploadImage']);
+
+
+// 
+Route::get('/users/{id}/profile', function ($id) {
+    $user = \App\Models\User::with('profile')->findOrFail($id);
+
+    return response()->json([
+        'user' => $user
+    ]);
+});
