@@ -58,3 +58,6 @@ Route::middleware(['auth:sanctum', 'role:admin'])->put('/users/{id}', [UserContr
 
 // route to delete user by id  (admin only)
 Route::middleware(['auth:sanctum', 'role:admin'])->delete('/users/{id}', [UserController::class, 'destroy']);
+
+// upload user image 
+Route::post('/users/{id}/image', [UserController::class, 'uploadImage']);
